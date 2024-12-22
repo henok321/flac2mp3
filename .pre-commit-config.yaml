@@ -1,0 +1,18 @@
+default_stages: [pre-commit,pre-push]
+repos:
+  - repo: https://github.com/golangci/golangci-lint
+    rev: v1.62.2
+    hooks:
+      - id: golangci-lint-config-verify
+      - id: golangci-lint-full
+  - repo: local
+    hooks:
+      - id: go-test
+        name: go-test
+        stages: [pre-push]
+        description: Run all tests
+        entry: go test -v ./...
+        types: [go]
+        language: golang
+        require_serial: true
+        pass_filenames: false
