@@ -32,6 +32,12 @@ func main() {
 	semaphore := make(chan struct{}, *workers)
 	var wg sync.WaitGroup
 
+	outputDir := filepath.Join(filepath.Dir(*inputDir), filepath.Base(*inputDir)+"_320")
+
+	if err := os.Mkdir(outputDir, 0755); err != nil {
+		slog.Error("Cannot create output directory", "outputDir", outputDir)
+	}
+
 	for _, file := range inputFiles {
 		fileName := file.Name()
 		fileExtension := filepath.Ext(fileName)
@@ -46,12 +52,6 @@ func main() {
 				slog.Info("Convert file", "filename", fileNameWithoutExtension)
 
 				inputFilePath := filepath.Join(*inputDir, fileName)
-
-				outputDir := filepath.Join(filepath.Dir(*inputDir), filepath.Base(*inputDir)+"_320")
-
-				if err := os.Mkdir(outputDir, 0755); err != nil {
-					slog.Error("Cannot create output directory", "outputDir", outputDir)
-				}
 
 				outputFilePath := filepath.Join(outputDir, fileNameWithoutExtension+".mp3")
 
