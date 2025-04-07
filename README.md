@@ -23,13 +23,7 @@ brew install ffmpeg
 Install [golangci-lint](https://golangci-lint.run/welcome/install/#local-installation) and start linting:
 
 ```shell
-golangci-lint run --fix --verbose 
-```
-
-To verify the schema of the `.golangci.yml` config file run:
-
-```shell
-golangci-lint config verify --verbose --config .golangci.yml
+make lint
 ```
 
 #### Commit hooks
@@ -39,7 +33,7 @@ use [pre-commit](https://pre-commit.com/). Cod
 To install the commit hooks, run:
 
 ```shell
-pre-commit install --hook-type pre-commit --hook-type pre-push
+make setup
 ```
 
 ### Build
@@ -47,7 +41,7 @@ pre-commit install --hook-type pre-commit --hook-type pre-push
 Build go binary:
 
 ```shell
-go build -o flac2mp3 cmd/main.go
+make build
 ```
 
 ### Run
@@ -57,7 +51,7 @@ Run the program:
 Start the program with the `-input` flag to specify the directory with the FLAC files:
 
 ```shell
-./flac2mp3 -input /tmp/music 
+./bin/flac2mp3 -input /tmp/music 
 ```
 
 The mp3 files will be saved in the same base directory as the FLAC files with the extension `_320`.
@@ -65,4 +59,3 @@ The mp3 files will be saved in the same base directory as the FLAC files with th
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
