@@ -57,7 +57,7 @@ func convertFiles(inputFiles []os.DirEntry, inputDir, outputDir string, workers 
 		}
 	}()
 
-	for w := 0; w < workers; w++ {
+	for range workers {
 		wg.Add(1)
 
 		go func() {
