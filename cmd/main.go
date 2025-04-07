@@ -8,10 +8,11 @@ import (
 	"path/filepath"
 	"runtime"
 	"sync"
+	"time"
 )
 
 func init() {
-	logHandler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})
+	logHandler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})
 	slog.SetDefault(slog.New(logHandler))
 }
 
@@ -38,6 +39,7 @@ func main() {
 }
 
 func convertFiles(inputFiles []os.DirEntry, inputDir, outputDir string, workers int) {
+	defer track("convertFiles")()
 	bufferSize := 2 * workers
 	inputFilesQueue := make(chan os.DirEntry, bufferSize)
 
@@ -84,5 +86,12 @@ func conversionWorker(queue chan os.DirEntry, inputDir, outputDir string) {
 		if err := cmd.Run(); err != nil {
 			slog.Error("Failed to convert file", "inputFilePath", inputDir, "error", err)
 		}
+	}
+}
+
+func track(name string) func() {
+	start := time.Now()
+	return func() {
+		slog.Info("execution time", "name", name, "duration", time.Since(start))
 	}
 }
