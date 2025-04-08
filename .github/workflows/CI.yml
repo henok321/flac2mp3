@@ -55,10 +55,5 @@ jobs:
           go-version-file: go.mod
           cache-dependency-path: go.sum
 
-      - name: Start Docker
-        run: sudo systemctl start docker
-
       - name: Run Tests
-        env:
-          TESTCONTAINERS_RYUK_DISABLED: true
         run: go test -v ./...
