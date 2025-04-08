@@ -4,11 +4,12 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 	"sync"
 	"time"
+
+	ffmpeg "github.com/u2takey/ffmpeg-go"
 )
 
 func main() {
@@ -79,7 +80,12 @@ func conversionWorker(queue chan os.DirEntry, inputDir, outputDir string) {
 		inputFilePath := filepath.Join(inputDir, fileName)
 		outputFilePath := filepath.Join(outputDir, nameWithoutExt+".mp3")
 
-		cmd := exec.Command("ffmpeg", "-i", inputFilePath, "-ab", "320k", "-map_metadata", "0", "-id3v2_version", "3", outputFilePath)
+		cmd := ffmpeg.Input(inputFilePath).Output(outputFilePath, ffmpeg.KwArgs{
+			"ab":            "320k",
+			"map_metadata":  "0",
+			"id3v2_version": "3",
+		})
+
 		if err := cmd.Run(); err != nil {
 			fmt.Fprintf(os.Stderr, "Failed to convert file %s: %v\n", inputFilePath, err)
 		}
