@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -12,14 +11,10 @@ import (
 	"time"
 )
 
-func init() {
-	logHandler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})
-	slog.SetDefault(slog.New(logHandler))
-}
-
 func main() {
-	inputDir := (flag.String("i", "", "input directory"))
-	workers := flag.Int("c", runtime.NumCPU(), "number of workers ")
+	inputDir := flag.String("i", "", "input directory")
+	workers := flag.Int("c", runtime.NumCPU(), "number of workers")
+	flag.Parse()
 
 	if *inputDir == "" {
 		fmt.Println("Input directory is required")
@@ -27,36 +22,34 @@ func main() {
 		os.Exit(1)
 	}
 
-	flag.Parse()
-
-	slog.Info("Convert flac to mp3", "inputDir", *inputDir, "workers", *workers)
+	fmt.Printf("Convert flac to mp3 (inputDir=%s, workers=%d)\n", *inputDir, *workers)
 
 	inputFiles, err := os.ReadDir(*inputDir)
 	if err != nil {
-		slog.Error("Cannot read files", "inputDir", inputDir, "error", err)
+		fmt.Fprintf(os.Stderr, "Cannot read files from directory %s: %v\n", *inputDir, err)
+		os.Exit(1)
 	}
 
 	outputDir := filepath.Join(filepath.Dir(*inputDir), filepath.Base(*inputDir)+"_320")
-
 	if err := os.Mkdir(outputDir, 0o755); err != nil {
-		slog.Error("Cannot create output directory", "outputDir", outputDir)
+		fmt.Fprintf(os.Stderr, "Cannot create output directory %s: %v\n", outputDir, err)
+		os.Exit(1)
 	}
 
 	convertFiles(inputFiles, *inputDir, outputDir, *workers)
 }
 
 func convertFiles(inputFiles []os.DirEntry, inputDir, outputDir string, workers int) {
-	defer track("convertFiles")()
+	defer track("convert all files")()
 	bufferSize := 2 * workers
 	inputFilesQueue := make(chan os.DirEntry, bufferSize)
 
-	wg := sync.WaitGroup{}
+	var wg sync.WaitGroup
 
 	wg.Add(1)
-
 	go func() {
-		defer close(inputFilesQueue)
 		defer wg.Done()
+		defer close(inputFilesQueue)
 		for _, file := range inputFiles {
 			if filepath.Ext(file.Name()) == ".flac" {
 				inputFilesQueue <- file
@@ -64,9 +57,8 @@ func convertFiles(inputFiles []os.DirEntry, inputDir, outputDir string, workers 
 		}
 	}()
 
-	for range workers {
+	for i := 0; i < workers; i++ {
 		wg.Add(1)
-
 		go func() {
 			defer wg.Done()
 			conversionWorker(inputFilesQueue, inputDir, outputDir)
@@ -79,19 +71,17 @@ func convertFiles(inputFiles []os.DirEntry, inputDir, outputDir string, workers 
 func conversionWorker(queue chan os.DirEntry, inputDir, outputDir string) {
 	for file := range queue {
 		fileName := file.Name()
-		fileExtension := filepath.Ext(fileName)
-		fileNameWithoutExtension := fileName[0 : len(fileName)-len(fileExtension)]
+		ext := filepath.Ext(fileName)
+		nameWithoutExt := fileName[:len(fileName)-len(ext)]
 
-		slog.Info("Convert file", "filename", fileNameWithoutExtension)
+		fmt.Printf("Converting file: %s\n", nameWithoutExt)
 
 		inputFilePath := filepath.Join(inputDir, fileName)
-
-		outputFilePath := filepath.Join(outputDir, fileNameWithoutExtension+".mp3")
+		outputFilePath := filepath.Join(outputDir, nameWithoutExt+".mp3")
 
 		cmd := exec.Command("ffmpeg", "-i", inputFilePath, "-ab", "320k", "-map_metadata", "0", "-id3v2_version", "3", outputFilePath)
-
 		if err := cmd.Run(); err != nil {
-			slog.Error("Failed to convert file", "inputFilePath", inputDir, "error", err)
+			fmt.Fprintf(os.Stderr, "Failed to convert file %s: %v\n", inputFilePath, err)
 		}
 	}
 }
@@ -99,6 +89,6 @@ func conversionWorker(queue chan os.DirEntry, inputDir, outputDir string) {
 func track(name string) func() {
 	start := time.Now()
 	return func() {
-		slog.Info("execution time", "name", name, "duration", time.Since(start))
+		fmt.Printf("Execution time - %s: %v\n", name, time.Since(start))
 	}
 }
