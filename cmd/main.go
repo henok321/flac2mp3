@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log/slog"
 	"os"
 	"os/exec"
@@ -18,7 +19,13 @@ func init() {
 
 func main() {
 	inputDir := (flag.String("i", "", "input directory"))
-	workers := flag.Int("c", runtime.NumCPU(), "number of workers (default number of CPUs)")
+	workers := flag.Int("c", runtime.NumCPU(), "number of workers ")
+
+	if *inputDir == "" {
+		fmt.Println("Input directory is required")
+		flag.Usage()
+		os.Exit(1)
+	}
 
 	flag.Parse()
 
