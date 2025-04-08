@@ -17,7 +17,7 @@ help:
 	@echo "  lint      - Run linter"
 	@echo "  update    - Update Go modules"
 	@echo "  test      - Run tests"
-	@echo "  build     - Build the service"
+	@echo "  build     - Build the executable"
 	@echo "  clean     - Remove build artifacts"
 
 check-deps:
@@ -46,7 +46,7 @@ test: lint
 	go test -v ./...
 
 build: test
-	@echo "Building the service..."
+	@echo "Building the executable..."
 	CGO_ENABLED=0 GOARCH=$(GOARCH) GOOS=$(GOOS) go build $(BUILD_FLAGS) -o $(OUTPUT) $(CMD_DIR)/
 
 clean:

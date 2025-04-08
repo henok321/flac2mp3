@@ -21,9 +21,3 @@ go.work.sum
 # VSCode
 **/bin
 **/__debug_**
-
-# Firebase secret
-firebaseServiceAccount.json
-
-# Air Verse tmp folder
-/tmp
