@@ -2,8 +2,7 @@
 
 ## Synopsis
 
-Golang cli program to convert FLAC files to MP3 files. Example project to demonstrate the usage of the semaphores
-implemented by buffered channels.
+FLAC2MP3 is a command-line tool written in Golang that converts FLAC files to MP3 format. It utilizes concurrent worker queues with goroutines and channels to efficiently process and convert audio files, demonstrating robust, high-performance programming practices.
 
 ## Build and run
 
