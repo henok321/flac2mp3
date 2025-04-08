@@ -51,6 +51,7 @@ func convertFiles(inputFiles []os.DirEntry, inputDir, outputDir string, workers 
 	go func() {
 		defer close(inputFilesQueue)
 		defer wg.Done()
+
 		for _, file := range inputFiles {
 			if filepath.Ext(file.Name()) == ".flac" {
 				inputFilesQueue <- file
