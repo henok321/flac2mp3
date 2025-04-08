@@ -18,11 +18,11 @@ func init() {
 
 func main() {
 	inputDir := (flag.String("i", "", "input directory"))
-	workers := flag.Int("c", runtime.NumCPU(), "number of workers")
+	workers := flag.Int("c", runtime.NumCPU(), "number of workers (default number of CPUs)")
 
 	flag.Parse()
 
-	slog.Info("Convert flac to mp3", "inputDir", inputDir, "workers", workers)
+	slog.Info("Convert flac to mp3", "inputDir", *inputDir, "workers", *workers)
 
 	inputFiles, err := os.ReadDir(*inputDir)
 	if err != nil {
