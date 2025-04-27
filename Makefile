@@ -33,11 +33,12 @@ setup: check-deps
 
 lint:
 	@echo "Running linter..."
-	golangci-lint config verify --verbose --config .golangci.yml
-	golangci-lint run --fix --verbose
+	pre-commit run --all-files
 
 update:
 	@echo "Updating Go modules..."
+	pre-commit autoupdate
+	pre-commit migrate-config
 	go get -u ./...
 	go mod tidy
 

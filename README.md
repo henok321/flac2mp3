@@ -50,7 +50,7 @@ Run the program:
 Start the program with the `-input` flag to specify the directory with the FLAC files:
 
 ```shell
-./bin/flac2mp3 -input /tmp/music 
+./bin/flac2mp3 -input /tmp/music
 ```
 
 The mp3 files will be saved in the same base directory as the FLAC files with the extension `_320`.
